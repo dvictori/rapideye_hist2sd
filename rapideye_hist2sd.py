@@ -1,10 +1,13 @@
-#!/c/OSGEO4W64/bin/pythonw
+#!/c/OSGEO4W64/bin/python
 # -*- coding: utf-8 -*-
 
-## se usar env python, programa demora muito para iniciar no MSys.
-## Fica mais rápido se apontar diretamente p/ o executável
-## usando o executável python dá problema (python stoped working). O pythonw aparentemente funciona
-#!/c/OSGEO4W64/bin/python
+## Depending on were you are going to execute this, you should change the shebang
+## When running on windows (under MSys), program takes too long to start when using '/usr/bin/env python'
+## better link directly to python executable
+## Also, o windows I sometimes get a "python stoped working" error when the code ends
+## If you don't want to keep seeing those errors, you can use pythonw executable instead (will run withuout opening a prompt)
+## however, it will keep popping up some terminal windows with the gdalwarp process -- anoying
+#!/c/OSGEO4W64/bin/pythonw
 #!/usr/bin/env python
 
 
@@ -58,13 +61,14 @@ meanSD = [b.ComputeBandStats() for b in bandas]
 
 # rescale image using mean+- 2* SD
 # if mean-2*sd < band(min), use band(min)
+# also, must garantee that min is more then 0 in order to use nodata values
 # if mean+2*sd > band(max), use band(max)
 
-bandVals = [[0, max(minMax[b][0], meanSD[b][0] - 2* meanSD[b][1]),
+bandVals = [[0, max(minMax[b][0], 1, meanSD[b][0] - 2* meanSD[b][1]),
              min(minMax[b][1], meanSD[b][0] + 2*meanSD[b][1]), 65536] for b in range(3)]
 
 # leaving zero as nodata
-transfVals = [1,2, 254, 255]
+transfVals = [0,1, 254, 255]
 
 transfFunc = [interp1d(bandVals[b], transfVals) for b in range(3)]
 
@@ -89,6 +93,7 @@ inIMG = None
 
 # reprojecting to espg4326 using gdalwarp
 # too lazy to do it from scratch inside python
+# must specify input nodata in order for nodata output be correct
 print "Reprojecting image"
-call(["gdalwarp", "-t_srs", "epsg:4326", "-dstnodata", "0", "-r", "cubic", nome_saida_tmp, nome_saida], shell=False)
+call(["gdalwarp", "-t_srs", "epsg:4326", "-dstnodata", "0 0 0", "-srcnodata", "0 0 0", "-r", "cubic", nome_saida_tmp, nome_saida], shell=False)
 os.remove(nome_saida_tmp)
