@@ -46,3 +46,36 @@ DICAS:
 Compactando ou rodando programas em paralelo no shell
 Usar o XARGS para compactar arquivos, de 3 em 3
 find . -name '*.tif' | xargs -n 1 -P 3 bzip2
+
+--------------------------------
+Shell script que usei para gerar o mosaico (converte_rapideye.sh)
+
+# programa para converter imagens para 8 bits, 3 bandas, epsg4326
+# converte_rapideye.sh <imagem> <pasta_saida>
+# como usar com o xarg:
+# Encontrar aquivos p/ processar usando FIND e mandar p/  script
+# find <pasta_entrada> -name *[0-9].tif | xargs -n 1 -P 3 -I % ../converte_rapideye.sh % <pasta_saida>
+# ver exemplo do xarg aqui: http://offbytwo.com/2011/06/26/things-you-didnt-know-about-xargs.html
+
+
+if [ "$#" -ne 2 ]; then
+    echo "Verificar argumentos. Precisa ser nome da imagem e pasta de saida"
+    exit
+fi
+
+arq=$1
+pasta=$2
+
+nome=`echo $arq | awk -F "/" '{print $NF}'`
+
+#echo $arq
+#echo $pasta
+#echo $nome
+
+#exit
+
+if [ ! -f $pasta/$nome ]; then
+    gdal_translate -b 1 -b 2 -b 3 -ot Byte -scale 0 65535 0 255 $arq $pasta/temp_$nome
+    gdalwarp -t_srs epsg:4326 -CO "COMPRESS=LZW"  $pasta/temp_$nome $pasta/$nome
+    rm $pasta/temp_$nome
+fi
