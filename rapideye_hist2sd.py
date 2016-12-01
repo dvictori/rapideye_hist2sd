@@ -1,4 +1,4 @@
-#!/c/OSGEO4W64/bin/python
+#!/c/OSGEO4W64/bin/pythonw
 # -*- coding: utf-8 -*-
 
 ## Depending on were you are going to execute this, you should change the shebang
@@ -23,6 +23,9 @@ export as 8bit, epsg:4326
 daniel.victoria@gmail.com
 
 I give no guarantees this will work. Keep your fingers crossed :)
+
+1/dec/2016 - Add option to consider nodata values
+    Treat a specific value as nodata. Ignores this value from statistics calculation
 """
 
 from osgeo import gdal
@@ -30,15 +33,18 @@ from scipy.interpolate import interp1d
 import sys, os
 from subprocess import call
 from numpy import zeros
+import argparse
 
-if len(sys.argv) < 3:
-    print "This programs applies a mean +-2SD histogram stretch to images and converts to 8bit"
-    print "Usage: rapideye_hist2sd.py  <input_image> <output_dir>"
-    print "Output image will have the prefix: 8bit_2sd_epsg4326_"
-    sys.exit()
+parser = argparse.ArgumentParser(
+    description='Applies a mean +-2SD histogram stretch to images and converts to 8bit',
+    epilog='Output image will have the prefix: 8bit_2sd_epsg4326_')
+parser.add_argument('input_image', help='Input image to be processed')
+parser.add_argument('out_path', help='Output directory')
+parser.add_argument('-n', '--nodata', help='set input NoData value', type=int)
+args = parser.parse_args()
 
-infile = sys.argv[1]
-out_path = sys.argv[2]
+infile = args.input_image
+out_path = args.out_path
 
 nome = os.path.basename(infile)
 nome_saida_tmp = os.path.join(out_path, "8bit_2sd_temp_"+nome)
@@ -54,10 +60,16 @@ inIMG = gdal.Open(infile)
 
 # getting stats for the first 3 bands
 # Using ComputeBandStats insted of stats array has min, max, mean and sd values
+# ComputeBandStats does not remove NoData
+# Must first set NoData and then use ComputeStatistics
 print "Computing band statistics"
 bandas = [inIMG.GetRasterBand(b+1) for b in range(3)]
-minMax = [b.ComputeRasterMinMax() for b in bandas]
-meanSD = [b.ComputeBandStats() for b in bandas]
+if args.nodata is not None:
+    [b.SetNoDataValue(args.nodata) for b in bandas]
+
+band_stats = [b.ComputeStatistics(False) for b in bandas]
+minMax = [i[:2] for i in band_stats]
+meanSD = [i[2:] for i in band_stats]
 
 # rescale image using mean+- 2* SD
 # if mean-2*sd < band(min), use band(min)
