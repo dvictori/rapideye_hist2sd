@@ -1,4 +1,4 @@
-#!/c/OSGEO4W64/bin/pythonw
+#!/c/OSGEO4W64/bin/python
 # -*- coding: utf-8 -*-
 
 ## Depending on were you are going to execute this, you should change the shebang
