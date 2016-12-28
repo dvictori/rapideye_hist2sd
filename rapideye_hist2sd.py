@@ -53,7 +53,7 @@ nome_saida = os.path.join(out_path, "8bit_2sd_epsg4326_"+nome)
 # test if output file alredy exists
 # if so, stop program
 if os.path.isfile(nome_saida):
-    print "Output file %s alredy exists. DONE" % nome_saida
+    print("Output file %s alredy exists. DONE" % nome_saida)
     sys.exit()
 
 inIMG = gdal.Open(infile)
@@ -62,7 +62,7 @@ inIMG = gdal.Open(infile)
 # Using ComputeBandStats insted of stats array has min, max, mean and sd values
 # ComputeBandStats does not remove NoData
 # Must first set NoData and then use ComputeStatistics
-print "Computing band statistics"
+print("Computing band statistics")
 bandas = [inIMG.GetRasterBand(b+1) for b in range(3)]
 if args.nodata is not None:
     [b.SetNoDataValue(args.nodata) for b in bandas]
@@ -84,7 +84,7 @@ transfVals = [0,1, 254, 255]
 
 transfFunc = [interp1d(bandVals[b], transfVals) for b in range(3)]
 
-print "Saving temp output image"
+print("Saving temp output image")
 # Creating output image prior to reprojection       
 driver = gdal.GetDriverByName('GTiff')
 dest_img = driver.Create(nome_saida_tmp, inIMG.RasterXSize, inIMG.RasterYSize, 3, gdal.gdalconst.GDT_Byte)
@@ -106,6 +106,6 @@ inIMG = None
 # reprojecting to espg4326 using gdalwarp
 # too lazy to do it from scratch inside python
 # must specify input nodata in order for nodata output be correct
-print "Reprojecting image"
+print("Reprojecting image")
 call(["gdalwarp", "-t_srs", "epsg:4326", "-dstnodata", "0 0 0", "-srcnodata", "0 0 0", "-r", "cubic", nome_saida_tmp, nome_saida], shell=False)
 os.remove(nome_saida_tmp)
