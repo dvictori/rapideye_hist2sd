@@ -6,6 +6,8 @@ File containign things that should be done in the rapideye_hist2sd.py program
 
 1. Reproject data without using gdal_warp
   * In windows, sometime gdal_warp will crash at the end of reprojection, blocking the conversion process. Maybee, if I reprocess without calling an external tool, it will not crash.
+  
+__Substituted__  --> Implemented the use of the Unusable Data Mask (UDM) that comes with RapidEye Images (29/12/2016)
 2. Count number of 0 values in file. If more then a threshold, consider it nodata, else, consider it data
   * This is a problem when considering 0 as nodata and processing scenes with very dark areas
 
