@@ -31,6 +31,8 @@ I give no guarantees this will work. Keep your fingers crossed :)
     This option considers that UDM file has the same name as the input file, 
     with _udm.tif ending. And both files are located in the same directory
     Working at the end of the year -- yeahhh
+    
+12/jan/2017 - add option to have UDM file and image file in separate directories
 """
 
 from osgeo import gdal
@@ -48,10 +50,17 @@ parser.add_argument('input_image', help='Input image to be processed')
 parser.add_argument('out_path', help='Output directory')
 parser.add_argument('-n', '--nodata', help='set NoData value for the input image.'
                     ' Will not affect output image, which has default nodata of (0,0,0)', type=int)
-parser.add_argument('-m', '--mask', action='store_true', help='consider Unusable Data Mask (udm) image. '
+                    
+mask_group = parser.add_argument_group('Cloud mask options')
+mask_group.add_argument('-m', '--mask', action='store_true', help='consider Unusable Data Mask (udm) image. '
                     'There is no need to set nodata value if UDM is used. '
                     'UDM file must have same name as the image file, with _udm.tif at the end, '
                     'and be located in the same directory.' )
+mask_group.add_argument('-md', '--mask_dir', help='Directory containing mask files')
+mask_group.add_argument('-sk', '--skip_char', help='Number of characters to skip in image file name to form UDM mask file name. '
+                    'Usefull when image file name has a prefix not present in mask file name',
+                    type = int, default=0)
+                 
 args = parser.parse_args()
 
 infile = args.input_image
@@ -83,7 +92,10 @@ if args.nodata is not None:
 
 if args.mask == True:
     udm_file = os.path.splitext(nome)[0]+'_udm.tif'
-    inMask = gdal.Open(os.path.join(in_path, udm_file))
+    udm_file = udm_file[args.skip_char:]
+    if args.mask_dir == None:
+        args.mask_dir = in_path
+    inMask = gdal.Open(os.path.join(args.mask_dir, udm_file))
     mask = inMask.GetRasterBand(1).ReadAsArray()
     inMask = None
     
