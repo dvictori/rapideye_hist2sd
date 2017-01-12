@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 
-pasta = 'I:\parana\8bit*.tif'
+#pasta = 'I:\parana\8bit*.tif'
+pasta = 'I:\\SUL\\epsg4326_21s_udm\\*.tif'
 articulacao = 'C:\\geodb\\articulacao\\RapidEye_Tiles\\RapidEye_Tiles_Brasil.shp'
 
 imagens = glob.glob(pasta)
@@ -31,9 +32,9 @@ def cospeHist(imagem):
     return hist_r, hist_g, hist_b
  
 hist_rgb = [cospeHist(i) for i in imagens]
-hist_r = [i[0] for i in hist_rgb]
-hist_g = [i[1] for i in hist_rgb]
-hist_b = [i[2] for i in hist_rgb]
+hist_r = [i[0] for i in hist_rgb if sum(i[0]) > 10] # if é para tirar histogramas com valor 0 para tudo
+hist_g = [i[1] for i in hist_rgb if sum(i[1]) > 10]
+hist_b = [i[2] for i in hist_rgb if sum(i[2]) > 10]
 
 cdf_r = np.array([np.cumsum(i)/float(sum(i)) for i in hist_r])
 cdf_g = np.array([np.cumsum(i)/float(sum(i)) for i in hist_g])
@@ -77,7 +78,7 @@ inv_cdf_b = interp1d(median_cdf_b, range(len(median_cdf_b)), bounds_error=0)
 def executaBalanco():
     for i in range(len(imagens)):
         arq = gdal.Open(imagens[i])
-        saida = "I:\\parana_balanco\\" + str(i) + '.tif'
+        saida = "I:\\SUL\\epsg_4326_21s_udm_balanco\\" + str(i) + '.tif'
         transf_r = inv_cdf_r(cdf_r[i])
         transf_g = inv_cdf_g(cdf_r[i])
         transf_b = inv_cdf_b(cdf_r[i])

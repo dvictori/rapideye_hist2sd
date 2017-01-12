@@ -28,7 +28,8 @@ I give no guarantees this will work. Keep your fingers crossed :)
     Treat a specific value as nodata. Ignores this value from statistics calculation
 
 29/dec/2016 - add option to consider cloud and nodata mask that comes with rapideye images
-    This option 
+    This option considers that UDM file has the same name as the input file, 
+    with _udm.tif ending. And both files are located in the same directory
     Working at the end of the year -- yeahhh
 """
 
@@ -47,8 +48,10 @@ parser.add_argument('input_image', help='Input image to be processed')
 parser.add_argument('out_path', help='Output directory')
 parser.add_argument('-n', '--nodata', help='set NoData value for the input image.'
                     ' Will not affect output image, which has default nodata of (0,0,0)', type=int)
-parser.add_argument('-m', '--mask', action='store_true', help='consider Unusable Data Mask (udm) image.'
-                    ' There is no need to set nodata value if UDM is used')
+parser.add_argument('-m', '--mask', action='store_true', help='consider Unusable Data Mask (udm) image. '
+                    'There is no need to set nodata value if UDM is used. '
+                    'UDM file must have same name as the image file, with _udm.tif at the end, '
+                    'and be located in the same directory.' )
 args = parser.parse_args()
 
 infile = args.input_image
