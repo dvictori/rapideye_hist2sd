@@ -1,4 +1,4 @@
-#!/c/OSGEO4W64/bin/python
+#!/c/OSGEO4W64/bin/pythonw
 # -*- coding: utf-8 -*-
 
 ## Depending on were you are going to execute this, you should change the shebang
@@ -50,6 +50,9 @@ parser.add_argument('input_image', help='Input image to be processed')
 parser.add_argument('out_path', help='Output directory')
 parser.add_argument('-n', '--nodata', help='set NoData value for the input image.'
                     ' Will not affect output image, which has default nodata of (0,0,0)', type=int)
+
+parser.add_argument('-b', '--bands', nargs='+', type=int, default='1 2 3',
+                    help='Bands to process. Default is 1 2 3')
                     
 mask_group = parser.add_argument_group('Cloud mask options')
 mask_group.add_argument('-m', '--mask', action='store_true', help='consider Unusable Data Mask (udm) image. '
@@ -79,12 +82,12 @@ if os.path.isfile(nome_saida):
 
 inIMG = gdal.Open(infile)
 
-# getting stats for the first 3 bands
+# getting stats for the bands listed in args.bands
 # Using ComputeBandStats insted of stats array has min, max, mean and sd values
 # ComputeBandStats does not remove NoData
 # Must first set NoData and then use ComputeStatistics
 print("Computing band statistics")
-bandas = [inIMG.GetRasterBand(b+1) for b in range(3)]
+bandas = [inIMG.GetRasterBand(b) for b in args.bands]
           
 if args.nodata is not None:
     print('Setting NoData value to %i'% args.nodata)
@@ -120,12 +123,12 @@ else:
 # if mean+2*sd > band(max), use band(max)
 
 bandVals = [[0, max(minMax[b][0], 1, meanSD[b][0] - 2* meanSD[b][1]),
-             min(minMax[b][1], meanSD[b][0] + 2*meanSD[b][1]), 65536] for b in range(3)]
+             min(minMax[b][1], meanSD[b][0] + 2*meanSD[b][1]), 65536] for b in range(len(args.bands))]
 
 # leaving zero as nodata
 transfVals = [0,1, 254, 255]
 
-transfFunc = [interp1d(bandVals[b], transfVals) for b in range(3)]
+transfFunc = [interp1d(bandVals[b], transfVals) for b in range(len(args.bands))]
 
 print("Saving temp output image")
 # Creating output image prior to reprojection       
@@ -134,7 +137,7 @@ dest_img = driver.Create(nome_saida_tmp, inIMG.RasterXSize, inIMG.RasterYSize, 3
 dest_img.SetGeoTransform(inIMG.GetGeoTransform())
 dest_img.SetProjection(inIMG.GetProjection())
 
-for b in range(3):
+for b in range(len(args.bands)):
     banda_in = bandas[b].ReadAsArray()
     b_saida = np.zeros((inIMG.RasterXSize, inIMG.RasterYSize), dtype=int)    
     for l in range(inIMG.RasterYSize):
