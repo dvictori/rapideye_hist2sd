@@ -33,6 +33,8 @@ I give no guarantees this will work. Keep your fingers crossed :)
     Working at the end of the year -- yeahhh
     
 12/jan/2017 - add option to have UDM file and image file in separate directories
+
+17/jan/2017 - add option to choose bands
 """
 
 from osgeo import gdal
@@ -46,8 +48,7 @@ from scipy.misc import imresize
 parser = argparse.ArgumentParser(
     description='Applies a mean +-2SD histogram stretch to images and converts to 8bit',
     epilog='Output image will have the prefix: 8bit_2sd_epsg4326_')
-parser.add_argument('input_image', help='Input image to be processed')
-parser.add_argument('out_path', help='Output directory')
+
 parser.add_argument('-n', '--nodata', help='set NoData value for the input image.'
                     ' Will not affect output image, which has default nodata of (0,0,0)', type=int)
 
@@ -63,6 +64,9 @@ mask_group.add_argument('-md', '--mask_dir', help='Directory containing mask fil
 mask_group.add_argument('-sk', '--skip_char', help='Number of characters to skip in image file name to form UDM mask file name. '
                     'Usefull when image file name has a prefix not present in mask file name',
                     type = int, default=0)
+                 
+parser.add_argument('input_image', help='Input image to be processed')
+parser.add_argument('out_path', help='Output directory')
                  
 args = parser.parse_args()
 
@@ -133,7 +137,7 @@ transfFunc = [interp1d(bandVals[b], transfVals) for b in range(len(args.bands))]
 print("Saving temp output image")
 # Creating output image prior to reprojection       
 driver = gdal.GetDriverByName('GTiff')
-dest_img = driver.Create(nome_saida_tmp, inIMG.RasterXSize, inIMG.RasterYSize, 3, gdal.gdalconst.GDT_Byte)
+dest_img = driver.Create(nome_saida_tmp, inIMG.RasterXSize, inIMG.RasterYSize, len(args.bands), gdal.gdalconst.GDT_Byte)
 dest_img.SetGeoTransform(inIMG.GetGeoTransform())
 dest_img.SetProjection(inIMG.GetProjection())
 
