@@ -52,7 +52,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-n', '--nodata', help='set NoData value for the input image.'
                     ' Will not affect output image, which has default nodata of (0,0,0)', type=int)
 
-parser.add_argument('-b', '--bands', nargs='+', type=int, default='1 2 3',
+parser.add_argument('-b', '--bands', nargs='+', type=int, default=[1, 2, 3],
                     help='Bands to process. Default is 1 2 3')
                     
 mask_group = parser.add_argument_group('Cloud mask options')
@@ -140,6 +140,8 @@ driver = gdal.GetDriverByName('GTiff')
 dest_img = driver.Create(nome_saida_tmp, inIMG.RasterXSize, inIMG.RasterYSize, len(args.bands), gdal.gdalconst.GDT_Byte)
 dest_img.SetGeoTransform(inIMG.GetGeoTransform())
 dest_img.SetProjection(inIMG.GetProjection())
+#dest_img.SetMetadata({'Processing': 'Histogram equalization done using rapideye_hist2sd.py',
+# 'Software': 'rapideye_hist2sd.py writen by daniel.victoria at embrapa dot br. Embrapa Informatics'})
 
 for b in range(len(args.bands)):
     banda_in = bandas[b].ReadAsArray()
