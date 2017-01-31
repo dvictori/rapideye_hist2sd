@@ -140,8 +140,8 @@ driver = gdal.GetDriverByName('GTiff')
 dest_img = driver.Create(nome_saida_tmp, inIMG.RasterXSize, inIMG.RasterYSize, len(args.bands), gdal.gdalconst.GDT_Byte)
 dest_img.SetGeoTransform(inIMG.GetGeoTransform())
 dest_img.SetProjection(inIMG.GetProjection())
-#dest_img.SetMetadata({'Processing': 'Histogram equalization done using rapideye_hist2sd.py',
-# 'Software': 'rapideye_hist2sd.py writen by daniel.victoria at embrapa dot br. Embrapa Informatics'})
+dest_img.SetMetadata({'Processing': 'Histogram equalization done using rapideye_hist2sd.py',
+ 'Software': 'rapideye_hist2sd.py writen by daniel.victoria at embrapa dot br. Embrapa Informatics'})
 
 for b in range(len(args.bands)):
     banda_in = bandas[b].ReadAsArray()
