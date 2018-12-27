@@ -1,12 +1,16 @@
-Como foi gerada a pirâmide RapidEye p/ o Sudeste
+This is an old instructions file, before Nov/2016, detailing what I did when I first tried to create a large RapidEye mosaic. No color balance applied. Procedure was used to create the 'before' image in readme (unbalanced Brazil Southeast mosaic).
+
+Old stuff kept for the record!
+-----------------------------------
+Como foi gerada a pirï¿½mide RapidEye p/ o Sudeste
 1) Copiar imagens para o disco
 
 2) Gerar lista das imagens em cada pasta dos fusos
     find <pasta> -name *[0-9].tif > lista_<pasta>.txt
-    
+
 3) converter para epsg_4326, passando para 8 bits antes (reduzir tamanho do arquivo)
-se for utilizar apenas algumas bandas, esta é a hora. Usar opção -b 1 -b 2 -b 3 no gdal_translate, por exemplo
-      
+se for utilizar apenas algumas bandas, esta ï¿½ a hora. Usar opï¿½ï¿½o -b 1 -b 2 -b 3 no gdal_translate, por exemplo
+
 for i in `cat lista_fuso21.txt`; do
     nome=`echo $i | awk -F "/" '{print $3}'`
     if [ ! -f epsg4326_fuso21s/$nome ];
@@ -16,31 +20,31 @@ for i in `cat lista_fuso21.txt`; do
             rm epsg4326_fuso21s/temp_$nome
     fi
 done
- 
+
 4) Gerar mosaico virtual
 
-gerado lista com todos os arquivos no epsg 4326. Isso pq não aceita wildcard no nome da pasta, só no arquivo
+gerado lista com todos os arquivos no epsg 4326. Isso pq nï¿½o aceita wildcard no nome da pasta, sï¿½ no arquivo
 find epsg4325_fuso* -name *.tif > lista_completa_epsg4326.txt
 
 gdalbuildvrt -srcnodata "0 0 0" -vrtnodata "0 0 0" -b 3 -b 2 -b 1 -input_file_list lista_completa_epsg4326.txt rapideye_sudeste.vrt
 
-Para funcionar a transparencia é preciso usar o estilo padrão de raster do Geoserver e não um estilo customizado
-Então já coloco as bandas na ordem correta (3,2,1) para poder utilizar o estilo raster
-A porcaria do -b só funciona para o GDAL mais novo. O que esta no chorão é velho! Pedindo para atualizar
+Para funcionar a transparencia ï¿½ preciso usar o estilo padrï¿½o de raster do Geoserver e nï¿½o um estilo customizado
+Entï¿½o jï¿½ coloco as bandas na ordem correta (3,2,1) para poder utilizar o estilo raster
+A porcaria do -b sï¿½ funciona para o GDAL mais novo. O que esta no chorï¿½o ï¿½ velho! Pedindo para atualizar
 
-Vi um comentário no stackexchange para usar -srcnodata "0 0 0" e -vrtnodata "0 0 0" do buildvrt para não ter as bordas pretas. Vou testar com o mosaico do Nordeste.
+Vi um comentï¿½rio no stackexchange para usar -srcnodata "0 0 0" e -vrtnodata "0 0 0" do buildvrt para nï¿½o ter as bordas pretas. Vou testar com o mosaico do Nordeste.
 http://gis.stackexchange.com/questions/64358/black-zones-after-tiling-two-tiff-files
 
-5) Exportar mosaico virtual como pirâmide
+5) Exportar mosaico virtual como pirï¿½mide
 
 gdal_retile -v -levels 5 -ps 2048 2048 -co "TILED=YES" -co "BLOCKXSIZE=256" -co "BLOCKYSIZE=256" -co "COMPRESS=LZW" -useDirForEachRow -targetDir <pasta> rapideye.vrt
 
-Para reduzir número de arquivos, estou usando ps = 8192
-Existe opção de usar resample cubico (-r cubic). Não sei se fica melhor
+Para reduzir nï¿½mero de arquivos, estou usando ps = 8192
+Existe opï¿½ï¿½o de usar resample cubico (-r cubic). Nï¿½o sei se fica melhor
 
 habilitar useDirForEachRow para ter menos arquivos por pasta
-criei RapidEye Sudeste usando 5 niveis. Se for reduzir tamanho do ps, aumentar um nível
-usar -co para opções de compactação. Geoserver on steroids recomenda jpeg com photometric YCbCr
+criei RapidEye Sudeste usando 5 niveis. Se for reduzir tamanho do ps, aumentar um nï¿½vel
+usar -co para opï¿½ï¿½es de compactaï¿½ï¿½o. Geoserver on steroids recomenda jpeg com photometric YCbCr
 
 DICAS:
 Compactando ou rodando programas em paralelo no shell
