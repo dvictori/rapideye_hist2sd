@@ -30,16 +30,16 @@ Script will run on one image at a time. So my recommendation is to use it with `
 
 *Before...*
 
-![SP mosaic, no color balance](figures/mosaic_sp_before.png)  
-*SP mosaic, no color balance*
+![Brazil Southeast mosaic, no color balance](figures/mosaic_se_before.png)  
+*Brazil Southeast, no color balance*
 
-![SP mosaic, no color balance - zoom](figures/mosaic_sp_before_zoom1.png)  
-*SP mosaic, no color balance - zoom*
+![Brazil Southeast, no color balance - zoom](figures/mosaic_se_before_zoom1.png)  
+*Brazil Southeast, no color balance - zoom*
 
 *After...*
 
-![Sul mosaic, crude color balance](figures/mosaic_sul_after.png)  
-*Sul mosaic, crude color balance*
+![Brazil Sul mosaic, crude color balance](figures/mosaic_sul_after.png)  
+*Brazil Sul mosaic, crude color balance*
 
-![Sul mosaic, crude color balance - zoom](figures/mosaic_sul_after_zoom1.png)  
-*Sul mosaic, crude color balance - zoom*
+![Brazil Sul mosaic, crude color balance - zoom](figures/mosaic_sul_after_zoom1.png)  
+*Brazil Sul mosaic, crude color balance - zoom*
