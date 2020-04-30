@@ -1,5 +1,7 @@
 # RapidEye histogram balance
 
+[![DOI](https://zenodo.org/badge/163286852.svg)](https://zenodo.org/badge/latestdoi/163286852)
+
 This code will take a RapidEye Image and apply a 2 standard deviation color balance. It will then rescale the image to 8bits and save a new TIF.
 
 Purpose: Do a crude color balance on several images so we can create a 'color balanced' mosaic.
